@@ -10,6 +10,22 @@ interface LayoutProps {
 	children: ReactNode
 }
 
+interface SidebarOption {
+	id: number,
+	name: string,
+	href: string,
+	action?: string
+}
+
+const sidebarOptions: SidebarOption[] = [
+	{
+		id: 1, 
+		name: "Add friend",
+		href: "/dashboard/add",
+		action: "+"
+	}
+]
+
 export default async function Layout({ children }: LayoutProps) {
 	const session = await getServerSession(authOptions);
 
@@ -38,7 +54,14 @@ export default async function Layout({ children }: LayoutProps) {
 						<div className="text-sm font-semibold leading-6 text-slate-400">Overview</div>
 						
 						<ul role="list" className="-mx-2 mt-2 space-y-1">
-
+							{sidebarOptions.map(option => (
+								<li key={option.id}>
+									<Link href={option.href} className="text-slate-700 hover:text-indigo-600 hover:bg-slate-50 group flex gap-3 p-2 text-sm leading-6 font-semibold">
+										<span className="text-slate-400 border-slate-200 group-hover:border-indigo-600 group-hover:text-indigo-600 flex w-6 h-6 shrink-0 items-center justify-center rounded-lg border text-[14px] font-bold bg-white">{option.action}</span>
+										<span className="truncate">{option.name}</span>
+										</Link>
+								</li>
+							))}
 						</ul>
 					</li>
 				</ul>
