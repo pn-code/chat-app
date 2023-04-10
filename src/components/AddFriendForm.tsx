@@ -19,8 +19,8 @@ function AddFriendForm() {
           type="email"
           placeholder="you@example.com"
         />
+        <Button>Add</Button>
       </div>
-      <Button>Add</Button>
     </form>
   );
 }
