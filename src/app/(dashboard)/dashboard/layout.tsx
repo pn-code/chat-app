@@ -7,6 +7,7 @@ import icon from "../../../../public/assets/chat-app-icon.png";
 import Image from "next/image";
 import SignOutButton from "@/components/SignOutButton";
 import FriendRequestsSidebarOption from "@/components/FriendRequestsSidebarOption";
+import { fetchRedis } from "@/app/helpers/redis";
 
 interface LayoutProps {
 	children: ReactNode;
@@ -34,6 +35,13 @@ export default async function Layout({ children }: LayoutProps) {
 	if (!session) {
 		notFound();
 	}
+
+	const unseenRequestCount = (
+		(await fetchRedis(
+			"smembers",
+			`user:${session.user.id}:incoming_friend_requests`
+		)) as User[]
+	).length;
 
 	return (
 		<div className="w-full flex h-screen">
@@ -78,7 +86,10 @@ export default async function Layout({ children }: LayoutProps) {
 						</li>
 
 						<li>
-							<FriendRequestsSidebarOption />
+							<FriendRequestsSidebarOption
+								sessionId={session.user.id}
+								initialUnseenRequestCount={unseenRequestCount}
+							/>
 						</li>
 
 						<li className="-mx-6 mt-auto flex items-center">
