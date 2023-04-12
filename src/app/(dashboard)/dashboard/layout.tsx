@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ReactNode } from "react";
 import icon from "../../../../public/assets/chat-app-icon.png"
 import Image from "next/image";
+import SignOutButton from "@/components/SignOutButton";
 
 interface LayoutProps {
 	children: ReactNode
@@ -86,7 +87,7 @@ export default async function Layout({ children }: LayoutProps) {
                 </div>
               </div>
 
-
+				<SignOutButton className="h-full aspect-square"/>
             </li>
           </ul>
         </nav>
