@@ -85,6 +85,7 @@ async function ChatroomPage({ params }: pageProps) {
 				sessionId={session.user.id}
 				chatPartner={chatPartner}
 				sessionImage={session.user.image}
+				chatId={chatId}
 			/>
 			<ChatInput chatPartner={chatPartner} chatId={chatId} />
 		</div>

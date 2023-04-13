@@ -1,6 +1,8 @@
 import { fetchRedis } from "@/app/helpers/redis";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { pusherServer } from "@/lib/pusher";
+import { toPusherKey } from "@/lib/utils";
 import { messageValidator } from "@/lib/validations/message";
 import { nanoid } from "nanoid";
 import { getServerSession } from "next-auth";
@@ -15,7 +17,6 @@ export async function POST(req: Request) {
 		}
 
 		const [userId1, userId2] = chatId.split("--");
-
 
 		if (session.user.id !== userId1 && session.user.id !== userId2) {
 			return new Response("Unauthorized", { status: 401 });
@@ -53,13 +54,20 @@ export async function POST(req: Request) {
 
 		const message = messageValidator.parse(messageData);
 
+		// notify all connections of new message
+		pusherServer.trigger(
+			toPusherKey(`chat:${chatId}`),
+			"incoming-message",
+			message
+		);
+
 		// if all is valid, send our message
 		await db.zadd(`chat:${chatId}:messages`, {
 			score: timestamp,
 			member: JSON.stringify(message),
 		});
 
-        return new Response("OK")
+		return new Response("OK");
 	} catch (error) {
 		if (error instanceof Error) {
 			return new Response(error.message, { status: 500 });
