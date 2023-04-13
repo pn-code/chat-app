@@ -1,5 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns/esm";
 import { useRef, useState } from "react";
 
 interface MessagesProps {
@@ -10,6 +11,10 @@ interface MessagesProps {
 function Messages({ initialMessages, sessionId }: MessagesProps) {
 	const [messages, setMessages] = useState<Message[]>(initialMessages);
 	const scrollDownRef = useRef<HTMLDivElement | null>(null);
+
+	const formatTimestamp = (timestamp: number) => {
+		return format(timestamp, "HH:mm");
+	};
 
 	return (
 		<div
@@ -49,7 +54,9 @@ function Messages({ initialMessages, sessionId }: MessagesProps) {
 									})}
 								>
 									{message.text}{" "}
-                                    <span className="ml-2 text-xs text-slate-400">{message.timestamp}</span>
+									<span className="ml-2 text-xs text-slate-400">
+										{formatTimestamp(message.timestamp)}
+									</span>
 								</span>
 							</div>
 						</div>
