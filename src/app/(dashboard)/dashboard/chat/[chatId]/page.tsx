@@ -54,11 +54,11 @@ async function ChatroomPage({ params }: pageProps) {
 	const initialMessages = await getChatMessages(chatId);
 
 	return (
-		<div className="flex-1 justify-between flex flex-col h-full max-h-[calc(100vh-6rem)]">
-			<div className="flex sm:items-center justify-between py-3 border-b-2 border-slate-200">
+		<div className="flex h-full max-h-[calc(100vh-6rem)] flex-1 flex-col justify-between">
+			<div className="flex justify-between border-b-2 border-slate-200 py-3 sm:items-center">
 				<div className="relative flex items-center space-x-4">
 					<div className="relative">
-						<div className="relative w-8 sm:w-12 h-8 sm:h-12">
+						<div className="relative h-8 w-8 sm:h-12 sm:w-12">
 							<Image
 								className="rounded-full"
 								src={chatPartner.image}
@@ -70,8 +70,8 @@ async function ChatroomPage({ params }: pageProps) {
 					</div>
 
 					<div className="flex flex-col leading-tight">
-						<div className="text-xl flex items-center">
-							<span className="text-slate-700 mr-3 font-semibold">
+						<div className="flex items-center text-xl">
+							<span className="mr-3 font-semibold text-slate-700">
 								{chatPartner.name}
 							</span>
 						</div>
@@ -80,9 +80,13 @@ async function ChatroomPage({ params }: pageProps) {
 					</div>
 				</div>
 			</div>
-			<Messages initialMessages={initialMessages} sessionId={session.user.id} />
-			<ChatInput chatPartner={chatPartner} chatId={chatId}/>
-
+			<Messages
+				initialMessages={initialMessages}
+				sessionId={session.user.id}
+				chatPartner={chatPartner}
+				sessionImage={session.user.image}
+			/>
+			<ChatInput chatPartner={chatPartner} chatId={chatId} />
 		</div>
 	);
 }

@@ -1,14 +1,22 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns/esm";
+import { format } from "date-fns";
+import Image from "next/image";
 import { useRef, useState } from "react";
 
 interface MessagesProps {
 	initialMessages: Message[];
 	sessionId: string;
+	sessionImage: string | null | undefined;
+	chatPartner: User;
 }
 
-function Messages({ initialMessages, sessionId }: MessagesProps) {
+function Messages({
+	initialMessages,
+	sessionId,
+	chatPartner,
+	sessionImage,
+}: MessagesProps) {
 	const [messages, setMessages] = useState<Message[]>(initialMessages);
 	const scrollDownRef = useRef<HTMLDivElement | null>(null);
 
@@ -58,6 +66,28 @@ function Messages({ initialMessages, sessionId }: MessagesProps) {
 										{formatTimestamp(message.timestamp)}
 									</span>
 								</span>
+							</div>
+
+							<div
+								className={cn("relative h-8 w-8", {
+									"order-2": isCurrentUser,
+									"order-1": !isCurrentUser,
+									invisible: hasNextMessageFromSameUser,
+								})}
+							>
+								<Image
+									fill
+									src={
+										isCurrentUser ? (sessionImage as string) : chatPartner.image
+									}
+									alt={
+										isCurrentUser
+											? "Your Profile Picture"
+											: `${chatPartner.name}'s Profile Picture`
+									}
+									referrerPolicy="no-referrer"
+									className="rounded-full"
+								/>
 							</div>
 						</div>
 					</div>
