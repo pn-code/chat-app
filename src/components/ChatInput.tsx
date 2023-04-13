@@ -16,6 +16,7 @@ function ChatInput({ chatPartner, chatId }: ChatInputProps) {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const sendMessage = async () => {
+		if (!input) return;
 		setIsLoading(true);
 
 		try {
@@ -23,7 +24,7 @@ function ChatInput({ chatPartner, chatId }: ChatInputProps) {
 			setInput("");
 			textareaRef.current?.focus();
 		} catch (error) {
-			toast.error("Something went wrong. Please try again later!")
+			toast.error("Something went wrong. Please try again later!");
 		} finally {
 			setIsLoading(false);
 		}
