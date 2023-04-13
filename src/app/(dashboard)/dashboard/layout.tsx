@@ -8,6 +8,8 @@ import Image from "next/image";
 import SignOutButton from "@/components/SignOutButton";
 import FriendRequestsSidebarOption from "@/components/FriendRequestsSidebarOption";
 import { fetchRedis } from "@/app/helpers/redis";
+import { getFriendsByUserId } from "@/app/helpers/getFriendsByUserId";
+import ChatListSidebar from "@/components/ChatListSidebar";
 
 interface LayoutProps {
 	children: ReactNode;
@@ -36,6 +38,8 @@ export default async function Layout({ children }: LayoutProps) {
 		notFound();
 	}
 
+	const friends = await getFriendsByUserId(session.user.id);
+
 	const unseenRequestCount = (
 		(await fetchRedis(
 			"smembers",
@@ -56,13 +60,18 @@ export default async function Layout({ children }: LayoutProps) {
 					/>
 				</Link>
 
-				<div className="text-sm font-semibold leading-6 text-slate-400">
-					Your chats
-				</div>
+				{/* Only render when user has friends... */}
+				{friends.length > 0 && (
+					<div className="text-sm font-semibold leading-6 text-slate-400">
+						Your chats
+					</div>
+				)}
 
 				<nav className="flex flex-1 flex-col">
 					<ul role="list" className="flex flex-q flex-col gap-y-7">
-						<li>// User Chats</li>
+						<li>
+							<ChatListSidebar friends={friends} sessionId={session.user.id}/>
+						</li>
 						<li>
 							<div className="text-sm font-semibold leading-6 text-slate-400">
 								Overview
@@ -82,14 +91,13 @@ export default async function Layout({ children }: LayoutProps) {
 										</Link>
 									</li>
 								))}
+								<li>
+									<FriendRequestsSidebarOption
+										sessionId={session.user.id}
+										initialUnseenRequestCount={unseenRequestCount}
+									/>
+								</li>
 							</ul>
-						</li>
-
-						<li>
-							<FriendRequestsSidebarOption
-								sessionId={session.user.id}
-								initialUnseenRequestCount={unseenRequestCount}
-							/>
 						</li>
 
 						<li className="-mx-6 mt-auto flex items-center">
