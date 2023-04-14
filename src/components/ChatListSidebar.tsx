@@ -27,7 +27,7 @@ function ChatListSidebar({ friends, sessionId }: ChatListSidebarProps) {
 		pusherClient.subscribe(toPusherKey(`user:${sessionId}:friends`));
 
 		const newFriendHandler = () => {
-			console.log("received new user");
+			router.refresh();
 		};
 
 		const chatHandler = (message: ExtendedMessage) => {
