@@ -9,42 +9,52 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export default async function DashboardPage() {
-	const session = await getServerSession(authOptions);
-	if (!session) notFound();
-
-	const friends = await getFriendsByUserId(session.user.id);
-
+	const session = await getServerSession(authOptions)
+	if (!session) notFound()
+  
+	const friends = await getFriendsByUserId(session.user.id)
+  
 	const friendsWithLastMessage = await Promise.all(
 		friends.map(async (friend) => {
-			const [lastMessageData] = (await fetchRedis(
-				"zrange",
-				`chat:${chatHrefConstructor(session.user.id, friend.id)}:messages`,
-				-1,
-				-1
-			)) as string[];
-
-			const lastMessage = JSON.parse(lastMessageData) as Message;
-
+		  const [lastMessageRaw] = (await fetchRedis(
+			'zrange',
+			`chat:${chatHrefConstructor(session.user.id, friend.id)}:messages`,
+			-1,
+			-1
+		  )) as string[];
+	  
+		  if (lastMessageRaw) { // Add this check to ensure lastMessageRaw is not empty
+			const lastMessage = JSON.parse(lastMessageRaw) as Message;
+	  
 			return {
-				...friend,
-				lastMessage,
+			  ...friend,
+			  lastMessage,
 			};
+		  } else {
+			return {
+			  ...friend,
+			  lastMessage: {
+				senderId: session.user.id,
+				text: "Send a message!"
+			  }
+			};
+		  }
 		})
-	);
-
+	  );  
+	  
 	return (
 		<div className="container py-12">
 			<h1 className="mb-8 text-5xl font-bold">Recent chats</h1>
 			{friendsWithLastMessage.length === 0 ? (
-				<p className="text-sm text-slate-500">Nothing to show here...</p>
+				<p className="text-sm text-zinc-500">Nothing to show here...</p>
 			) : (
-				(await friendsWithLastMessage).map((friend) => (
+				friendsWithLastMessage.map((friend) => (
 					<div
 						key={friend.id}
-						className="relative rounded-md border border-slate-200 bg-slate-50 p-3"
+						className="relative rounded-md border border-zinc-200 bg-zinc-50 p-3"
 					>
 						<div className="absolute inset-y-0 right-4 flex items-center">
-							<ChevronRight className="h-7 w-7 text-slate-400" />
+							<ChevronRight className="h-7 w-7 text-zinc-400" />
 						</div>
 
 						<Link
@@ -59,7 +69,7 @@ export default async function DashboardPage() {
 									<Image
 										referrerPolicy="no-referrer"
 										className="rounded-full"
-										alt={`${friend.name}'s profile picture`}
+										alt={`${friend.name} profile picture`}
 										src={friend.image}
 										fill
 									/>
@@ -69,9 +79,9 @@ export default async function DashboardPage() {
 							<div>
 								<h4 className="text-lg font-semibold">{friend.name}</h4>
 								<p className="mt-1 max-w-md">
-									<span className="text-slate-400">
+									<span className="text-zinc-400">
 										{friend.lastMessage.senderId === session.user.id
-											? "You"
+											? "You: "
 											: ""}
 									</span>
 									{friend.lastMessage.text}
