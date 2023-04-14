@@ -50,7 +50,14 @@ async function ChatroomPage({ params }: pageProps) {
 	}
 
 	const chatPartnerId = user.id === userId1 ? userId2 : userId1;
-	const chatPartner = (await db.get(`user:${chatPartnerId}`)) as User;
+
+	const chatPartnerData = (await fetchRedis(
+		"get",
+		`user:${chatPartnerId}`
+	)) as string;
+	
+	const chatPartner = (await JSON.parse(chatPartnerData)) as User;
+
 	const initialMessages = await getChatMessages(chatId);
 
 	return (
