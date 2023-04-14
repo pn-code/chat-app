@@ -37,7 +37,7 @@ export async function POST(req: Request) {
 
 		const senderData = (await fetchRedis(
 			"get",
-			`user${session.user.id}:`
+			`user:${session.user.id}`
 		)) as string;
 
 		const sender = JSON.parse(senderData) as User;
@@ -55,10 +55,21 @@ export async function POST(req: Request) {
 		const message = messageValidator.parse(messageData);
 
 		// notify all connections of new message
-		pusherServer.trigger(
+		await pusherServer.trigger(
 			toPusherKey(`chat:${chatId}`),
 			"incoming-message",
 			message
+		);
+		
+
+		await pusherServer.trigger(
+			toPusherKey(`user:${friendId}:chats`),
+			"new_message",
+			{
+				...message,
+				senderImg: sender.image,
+				senderName: sender.name,
+			}
 		);
 
 		// if all is valid, send our message
@@ -70,7 +81,7 @@ export async function POST(req: Request) {
 		return new Response("OK");
 	} catch (error) {
 		if (error instanceof Error) {
-			return new Response(error.message, { status: 500 });
+			return new Response(error.message, { status: 400 });
 		}
 
 		return new Response("Server Error", { status: 500 });

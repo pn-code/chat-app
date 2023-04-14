@@ -1,5 +1,6 @@
 "use client";
-import { chatHrefConstructor } from "@/lib/utils";
+import { pusherClient } from "@/lib/pusher";
+import { chatHrefConstructor, toPusherKey } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -13,6 +14,30 @@ function ChatListSidebar({ friends, sessionId }: ChatListSidebarProps) {
 	const pathname = usePathname();
 
 	const [unseenMessages, setUnseenMessages] = useState<Message[]>([]);
+
+	useEffect(() => {
+		pusherClient.subscribe(toPusherKey(`user:${sessionId}:chats`))
+		pusherClient.subscribe(toPusherKey(`user:${sessionId}:friends`))
+	
+		const newFriendHandler = () => {
+		  console.log("received new user")
+		}
+	
+		const chatHandler = () => {
+		  console.log("new chat msg")
+		}
+	
+		pusherClient.bind('new_message', chatHandler)
+		pusherClient.bind('new_friend', newFriendHandler)
+	
+		return () => {
+		  pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:chats`))
+		  pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:friends`))
+	
+		  pusherClient.unbind('new_message', chatHandler)
+		  pusherClient.unbind('new_friend', newFriendHandler)
+		}
+	  }, [pathname, sessionId, router])
 
 	// If user checks chat, update unseen messages count...
 	useEffect(() => {
