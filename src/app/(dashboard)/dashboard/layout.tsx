@@ -10,16 +10,10 @@ import FriendRequestsSidebarOption from "@/components/FriendRequestsSidebarOptio
 import { fetchRedis } from "@/app/helpers/redis";
 import { getFriendsByUserId } from "@/app/helpers/getFriendsByUserId";
 import ChatListSidebar from "@/components/ChatListSidebar";
+import MobileChatLayout from "@/components/MobileChatLayout";
 
 interface LayoutProps {
 	children: ReactNode;
-}
-
-interface SidebarOption {
-	id: number;
-	name: string;
-	href: string;
-	action?: string;
 }
 
 const sidebarOptions: SidebarOption[] = [
@@ -48,8 +42,17 @@ export default async function Layout({ children }: LayoutProps) {
 	).length;
 
 	return (
-		<div className="w-full flex h-screen">
-			<div className="flex h-full w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto border-r border-slate-200 bg-white px-6">
+		<div className="flex h-screen w-full">
+			<div className="md:hidden">
+				<MobileChatLayout
+					friends={friends}
+					session={session}
+					sidebarOptions={sidebarOptions}
+					unseenRequestCount={unseenRequestCount}
+				/>
+			</div>
+
+			<div className="hidden h-full w-full max-w-xs grow flex-col gap-y-5 overflow-y-auto border-r border-slate-200 bg-white px-6 md:flex">
 				<Link href="/dashboard" className="flex h-16 shrink-0 items-center">
 					<Image
 						className="rounded-full"
@@ -68,9 +71,9 @@ export default async function Layout({ children }: LayoutProps) {
 				)}
 
 				<nav className="flex flex-1 flex-col">
-					<ul role="list" className="flex flex-q flex-col gap-y-7">
+					<ul role="list" className="flex-q flex flex-col gap-y-7">
 						<li>
-							<ChatListSidebar friends={friends} sessionId={session.user.id}/>
+							<ChatListSidebar friends={friends} sessionId={session.user.id} />
 						</li>
 						<li>
 							<div className="text-sm font-semibold leading-6 text-slate-400">
@@ -82,9 +85,9 @@ export default async function Layout({ children }: LayoutProps) {
 									<li key={option.id}>
 										<Link
 											href={option.href}
-											className="text-slate-700 hover:text-indigo-600 hover:bg-slate-50 group flex gap-3 p-2 text-sm leading-6 font-semibold"
+											className="group flex gap-3 p-2 text-sm font-semibold leading-6 text-slate-700 hover:bg-slate-50 hover:text-indigo-600"
 										>
-											<span className="text-slate-400 border-slate-200 group-hover:border-indigo-600 group-hover:text-indigo-600 flex w-6 h-6 shrink-0 items-center justify-center rounded-lg border text-[14px] font-bold bg-white">
+											<span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-[14px] font-bold text-slate-400 group-hover:border-indigo-600 group-hover:text-indigo-600">
 												{option.action}
 											</span>
 											<span className="truncate">{option.name}</span>
@@ -121,13 +124,13 @@ export default async function Layout({ children }: LayoutProps) {
 								</div>
 							</div>
 
-							<SignOutButton className="h-full aspect-square" />
+							<SignOutButton className="aspect-square h-full" />
 						</li>
 					</ul>
 				</nav>
 			</div>
 
-			<aside className="max-h-screen container py-4 px-4 w-full">
+			<aside className="container max-h-screen w-full px-10 py-10">
 				{children}
 			</aside>
 		</div>
